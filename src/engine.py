@@ -1,6 +1,7 @@
 import torch
 import torchvision
 import torchvision.transforms.functional as F
+import os
 
 def eval(model, text,  test_loader, log_interval=10, device='cuda'):
   with torch.no_grad(), torch.autocast("cuda"):
@@ -25,7 +26,36 @@ def eval(model, text,  test_loader, log_interval=10, device='cuda'):
   print(f"   • Accuracy : {accuracy:.2f}% ({total_correct}/{total_samples})")
   print("=" * 50)
 
-def linear_probe_train(model, text, train_loader, val_loader,   optimizer, criterion, epoch=1, total_epochs=10, log_interval=10, device='cuda'):
+
+def save_checkpoint(model, optimizer, epoch, folder="checkpoints"):
+    """
+    Save model and optimizer state to a checkpoint file named with epoch number.
+    """
+    os.makedirs(folder, exist_ok=True)  # create folder if not exists
+    path = os.path.join(folder, f"checkpoint_epoch_{epoch}.pth")
+
+    checkpoint = {
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict()
+    }
+    torch.save(checkpoint, path)
+    print(f"[Checkpoint] Saved at epoch {epoch} to {path}")
+
+def load_checkpoint(model, optimizer, path, device="cpu"):
+    if os.path.exists(path):
+        checkpoint = torch.load(path, map_location=device)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_epoch = checkpoint['epoch'] + 1
+        print(f"[Checkpoint] Loaded checkpoint from {path}, resuming at epoch {start_epoch}")
+        return start_epoch
+    else:
+        print(f"[Checkpoint] No checkpoint found at {path}, starting from scratch")
+        return 1
+
+
+def linear_probe_train(model, train_loader, val_loader,   optimizer, criterion, epoch=1, total_epochs=10, log_interval=10, device='cuda', checkpoint_folder=None, resume_from=None):
     """
     Train and validate a model for one epoch with batch and epoch-level logging.
 
@@ -39,74 +69,77 @@ def linear_probe_train(model, text, train_loader, val_loader,   optimizer, crite
         epoch: current epoch number
         total_epochs: total number of epochs
         log_interval: log every N batches
+        checkpoint_folder: folder to save checkpoints
+        resume_from: checkpoint to resume from
     """
 
     # ---------------- Train ----------------
+    model.to(device)
     model.train()
-    train_loss, train_correct, train_samples = 0.0, 0, 0
 
-    for batch_idx, (inputs, targets) in enumerate(train_loader, start=1):
-      inputs, targets = inputs.to(device), targets.to(device)
-      optimizer.zero_grad()
-      # image_features = model.encode_image(inputs)
-      # text_features = model.encode_text(text)
-      # image_features /= image_features.norm(dim=-1, keepdim=True)
-      # text_features /= text_features.norm(dim=-1, keepdim=True)
-      # outputs = (100.0 * image_features @ text_features.T).softmax(dim=-1)
-      # text = text.unsqueeze(0).expand(inputs.size(0), -1, -1)
+    start_epoch = 1
 
-      outputs = model(inputs)
-      loss = criterion(outputs, targets)
-      loss.backward()
-      optimizer.step()
+    if resume_from is not None:
+        start_epoch = load_checkpoint(model, optimizer, resume_from, device=device)
+    for epoch in range(start_epoch, total_epochs + 1):
+        train_loss, train_correct, train_samples = 0.0, 0, 0
+        for batch_idx, (inputs, targets) in enumerate(train_loader, start=1):
+          inputs, targets = inputs.to(device), targets.to(device)
+          optimizer.zero_grad()
 
-      train_loss += loss.item() * inputs.size(0)
-      preds = outputs.argmax(dim=1)
-      train_correct += (preds == targets).sum().item()
-      train_samples += targets.size(0)
+          outputs = model(inputs)
+          loss = criterion(outputs, targets)
+          loss.backward()
+          optimizer.step()
 
-      if batch_idx % log_interval == 0 or batch_idx == len(train_loader):
-        batch_acc = (preds == targets).float().mean().item() * 100
-        print(f"[Epoch {epoch}/{total_epochs}] [Train Batch {batch_idx}/{len(train_loader)}] "
-              f"Loss: {loss.item():.4f} | Batch Acc: {batch_acc:6.2f}%")
+          train_loss += loss.item() * inputs.size(0)
+          preds = outputs.argmax(dim=1)
+          train_correct += (preds == targets).sum().item()
+          train_samples += targets.size(0)
 
-    train_avg_loss = train_loss / train_samples
-    train_acc = train_correct / train_samples * 100
+          if batch_idx % log_interval == 0 or batch_idx == len(train_loader):
+            batch_acc = (preds == targets).float().mean().item() * 100
+            print(f"[Epoch {epoch}/{total_epochs}] [Train Batch {batch_idx}/{len(train_loader)}] "
+                  f"Loss: {loss.item():.4f} | Batch Acc: {batch_acc:6.2f}%")
 
-    print("-" * 60)
-    print(f"📈 Epoch {epoch}/{total_epochs} Train Summary")
-    print(f"   • Avg Loss : {train_avg_loss:.4f}")
-    print(f"   • Accuracy : {train_acc:.2f}% ({train_correct}/{train_samples})")
-    print("-" * 60)
+        train_avg_loss = train_loss / train_samples
+        train_acc = train_correct / train_samples * 100
 
-    # ---------------- Validation ----------------
-    model.eval()
-    val_loss, val_correct, val_samples = 0.0, 0, 0
+        print("-" * 60)
+        print(f"📈 Epoch {epoch}/{total_epochs} Train Summary")
+        print(f"   • Avg Loss : {train_avg_loss:.4f}")
+        print(f"   • Accuracy : {train_acc:.2f}% ({train_correct}/{train_samples})")
+        print("-" * 60)
 
-    with torch.no_grad():
-      for batch_idx, (inputs, targets) in enumerate(val_loader, start=1):
-        inputs, targets = inputs.to(device), targets.to(device)
-        outputs = model(inputs)
-        loss = criterion(outputs, targets)
+        # ---------------- Save Checkpoint ----------------
+        if checkpoint_folder is not None:
+            save_checkpoint(model, optimizer, epoch, folder=checkpoint_folder)
+        # ---------------- Validation ----------------
+        model.eval()
+        val_loss, val_correct, val_samples = 0.0, 0, 0
 
-        val_loss += loss.item() * inputs.size(0)
-        preds = outputs.argmax(dim=1)
-        val_correct += (preds == targets).sum().item()
-        val_samples += targets.size(0)
+        with torch.no_grad():
+          for batch_idx, (inputs, targets) in enumerate(val_loader, start=1):
+            inputs, targets = inputs.to(device), targets.to(device)
+            outputs = model(inputs)
+            loss = criterion(outputs, targets)
 
-        if batch_idx % log_interval == 0 or batch_idx == len(val_loader):
-          batch_acc = (preds == targets).float().mean().item() * 100
-          print(f"[Epoch {epoch}/{total_epochs}] [Val Batch {batch_idx}/{len(val_loader)}] "
-                f"Loss: {loss.item():.4f} | Batch Acc: {batch_acc:6.2f}%")
+            val_loss += loss.item() * inputs.size(0)
+            preds = outputs.argmax(dim=1)
+            val_correct += (preds == targets).sum().item()
+            val_samples += targets.size(0)
 
-    val_avg_loss = val_loss / val_samples
-    val_acc = val_correct / val_samples * 100
+            if batch_idx % log_interval == 0 or batch_idx == len(val_loader):
+              batch_acc = (preds == targets).float().mean().item() * 100
+              print(f"[Epoch {epoch}/{total_epochs}] [Val Batch {batch_idx}/{len(val_loader)}] "
+                    f"Loss: {loss.item():.4f} | Batch Acc: {batch_acc:6.2f}%")
 
-    print("=" * 60)
-    print(f"📊 Epoch {epoch}/{total_epochs} Validation Summary")
-    print(f"   • Avg Loss : {val_avg_loss:.4f}")
-    print(f"   • Accuracy : {val_acc:.2f}% ({val_correct}/{val_samples})")
-    print("=" * 60)
+        val_avg_loss = val_loss / val_samples
+        val_acc = val_correct / val_samples * 100
 
-    return (train_avg_loss, train_acc), (val_avg_loss, val_acc)
+        print("=" * 60)
+        print(f"📊 Epoch {epoch}/{total_epochs} Validation Summary")
+        print(f"   • Avg Loss : {val_avg_loss:.4f}")
+        print(f"   • Accuracy : {val_acc:.2f}% ({val_correct}/{val_samples})")
+        print("=" * 60)
 
