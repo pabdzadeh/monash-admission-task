@@ -41,6 +41,20 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--pretrained_model",
+        help="name of  pretrained variants of CLIP on ViT-b-32",
+        default="openai",
+        type=str,
+    )
+
+    parser.add_argument(
+        "--linear_probe",
+        help="train linear probe on ViT-b-32",
+        default=False,
+        type=bool,
+    )
+
+    parser.add_argument(
         "--zero_shot",
         help="evaluation mode",
         default=True,
@@ -51,10 +65,15 @@ def parse_args():
         parser.print_help()
     return parser.parse_args()
 
-def prepare_dataset(args):
+
+def apply_preprocess(x, preprocess):
+    return preprocess(x)
+
+
+def prepare_dataset(args, preprocess):
     transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        [transforms.ToTensor(), transforms.ToPILImage(), transforms.Lambda(preprocess)],
+        )
 
     train_set = torchvision.datasets.CIFAR10(root='./data', train=True,
                                             download=True, transform=transform)
@@ -73,17 +92,16 @@ def main():
     """
     args = parse_args()
 
-    train_loader, test_loader = prepare_dataset(args)
+
 
     if (args.zero_shot):
         model, _, preprocess = open_clip.create_model_and_transforms('ViT-B-32')
+        print(model)
         model.eval()
+        train_loader, test_loader = prepare_dataset(args, preprocess)
         tokenizer = open_clip.get_tokenizer('ViT-B-32')
-        text = tokenizer(["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"])
+        text = tokenizer(["a photo of " + x for x in ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]])
         engine.eval(model, preprocess, text, test_loader)
-
-
-
 
 
 if __name__ == "__main__":
