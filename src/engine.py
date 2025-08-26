@@ -1,10 +1,10 @@
 import torch
 import torchvision
 
-def eval(model, preprocess, text,  test_loader):
+def eval(model, preprocess, text,  test_loader, log_interval=10):
   with torch.no_grad(), torch.autocast("cuda"):
     total_loss, total_correct, total_samples = 0.0, 0, 0
-    for data_iter_step, (samples, targets) in enumerate(test_loader):
+    for batch_idx, (samples, targets) in enumerate(test_loader):
       image = preprocess(torchvision.transforms.ToPILImage()(samples[0])).unsqueeze(0)
       image_features = model.encode_image(image)
       text_features = model.encode_text(text)
@@ -14,6 +14,10 @@ def eval(model, preprocess, text,  test_loader):
       preds = text_probs.argmax(dim=1)
       total_correct += (preds == targets).sum().item()
       total_samples += targets.size(0)
+      if batch_idx % log_interval == 0 or batch_idx == len(test_loader):
+        batch_acc = (preds == targets).float().mean().item() * 100
+        print(f"[Batch {batch_idx:3d}/{len(test_loader)}] "
+              f"Batch Acc: {batch_acc:6.2f}%")
   accuracy = total_correct / total_samples * 100
   print("=" * 50)
   print(f"📊 Evaluation Results")
