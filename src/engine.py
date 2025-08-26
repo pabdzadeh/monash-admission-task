@@ -2,10 +2,11 @@ import torch
 import torchvision
 import torchvision.transforms.functional as F
 
-def eval(model, preprocess, text,  test_loader, log_interval=10):
+def eval(model, text,  test_loader, log_interval=10, device='cuda'):
   with torch.no_grad(), torch.autocast("cuda"):
     total_loss, total_correct, total_samples = 0.0, 0, 0
     for batch_idx, (samples, targets) in enumerate(test_loader):
+      samples, targets = samples.to(device), targets.to(device)
       image_features = model.encode_image(samples)
       text_features = model.encode_text(text)
       image_features /= image_features.norm(dim=-1, keepdim=True)
@@ -24,7 +25,7 @@ def eval(model, preprocess, text,  test_loader, log_interval=10):
   print(f"   • Accuracy : {accuracy:.2f}% ({total_correct}/{total_samples})")
   print("=" * 50)
 
-def linear_probe_train(model, preprocess, text, train_loader, val_loader,   optimizer, criterion, epoch=1, total_epochs=10, log_interval=10, device='cuda'):
+def linear_probe_train(model, text, train_loader, val_loader,   optimizer, criterion, epoch=1, total_epochs=10, log_interval=10, device='cuda'):
     """
     Train and validate a model for one epoch with batch and epoch-level logging.
 
@@ -46,8 +47,14 @@ def linear_probe_train(model, preprocess, text, train_loader, val_loader,   opti
 
     for batch_idx, (inputs, targets) in enumerate(train_loader, start=1):
       inputs, targets = inputs.to(device), targets.to(device)
-
       optimizer.zero_grad()
+      # image_features = model.encode_image(inputs)
+      # text_features = model.encode_text(text)
+      # image_features /= image_features.norm(dim=-1, keepdim=True)
+      # text_features /= text_features.norm(dim=-1, keepdim=True)
+      # outputs = (100.0 * image_features @ text_features.T).softmax(dim=-1)
+      # text = text.unsqueeze(0).expand(inputs.size(0), -1, -1)
+
       outputs = model(inputs)
       loss = criterion(outputs, targets)
       loss.backward()
