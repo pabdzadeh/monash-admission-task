@@ -80,7 +80,7 @@ def main():
         model.eval()
         tokenizer = open_clip.get_tokenizer('ViT-B-32')
         text = tokenizer(["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"])
-        engine.eval(model, preprocess, test_loader)
+        engine.eval(model, preprocess, text, test_loader)
 
 
 
