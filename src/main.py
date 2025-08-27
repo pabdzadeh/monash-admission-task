@@ -56,7 +56,7 @@ def parse_args():
     parser.add_argument(
         "class name prefix",
         help="The prefix to be added to all class names",
-        default=None,
+        default="",
         type=str,
     )
 
@@ -70,7 +70,7 @@ def parse_args():
     parser.add_argument(
         "--resume_from_checkpoint",
         help="checkpoint path",
-        default="",
+        default=None,
         type=str,
     )
 
