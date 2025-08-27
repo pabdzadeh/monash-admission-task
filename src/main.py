@@ -55,7 +55,7 @@ def parse_args():
     parser.add_argument(
         "--pretrained_model",
         help="name of  pretrained variants of CLIP on ViT-b-32",
-        default="openai",
+        default=None,
         type=str,
     )
 
