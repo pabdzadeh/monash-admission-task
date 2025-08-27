@@ -176,8 +176,8 @@ def main():
         print("2nd Phase :Evaluate the Trained Model")
         print("-" * 60)
         # evaluate the trained model
-        # preds, y_true = model.predict(val_loader)
-        engine.eval_linear_prob(model, test_loader)
+        preds, y_true = model.predict(val_loader)
+        # engine.eval_linear_prob(model, test_loader)
 
     if not args.linear_probe or args.zero_shot:
         print("-" * 60)
