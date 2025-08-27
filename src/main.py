@@ -174,7 +174,7 @@ def parse_args():
     parser.add_argument(
         "--linear_probe",
         help="train linear probe on ViT-b-32",
-        default=True,
+        default=False,
         type=bool,
     )
 
