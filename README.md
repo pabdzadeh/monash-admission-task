@@ -21,7 +21,7 @@ monash-admission-task/
 │
 ├── src/
 │   ├── main.ipynb        # Main notebook containing experiments and results
-│   ├── utils.py          # Helper functions (if applicable)
+│   ├── main.py          # Main python file to run
 │   └── ...
 ├── requirements.txt      # Python dependencies
 └── README.md             # Project documentation
