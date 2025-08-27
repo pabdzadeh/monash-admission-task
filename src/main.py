@@ -62,14 +62,14 @@ def parse_args():
     parser.add_argument(
         "--linear_probe",
         help="train linear probe on ViT-b-32",
-        default=True,
+        default=False,
         type=bool,
     )
 
     parser.add_argument(
         "--zero_shot",
         help="evaluation mode",
-        default=False,
+        default=True,
         type=bool,
     )
 
