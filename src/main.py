@@ -132,7 +132,7 @@ def main():
         criterion = nn.CrossEntropyLoss()
         train_loader, val_loader, test_loader = prepare_dataset(args, preprocess)
         optimizer = optim.Adam(model.linear_head.parameters(), lr=1e-3, weight_decay=1e-4)
-        engine.linear_probe_train(model, train_loader, val_loader, optimizer, criterion, device=torch.device('cpu'),
+        engine.linear_probe_train(model, train_loader, val_loader, optimizer, criterion, device=torch.device('cuda'),
                                   checkpoint_folder=args.output_dir, resume_from=args.resume_from_checkpoint)
 
     if args.zero_shot:

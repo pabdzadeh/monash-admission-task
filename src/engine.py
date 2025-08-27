@@ -2,8 +2,10 @@ import torch
 import torchvision
 import torchvision.transforms.functional as F
 import os
+import time
 
 def eval(model, text,  test_loader, log_interval=10, device='cuda'):
+  model.to(device)
   with torch.no_grad(), torch.autocast("cuda"):
     total_loss, total_correct, total_samples = 0.0, 0, 0
     for batch_idx, (samples, targets) in enumerate(test_loader):
@@ -82,8 +84,11 @@ def linear_probe_train(model, train_loader, val_loader,   optimizer, criterion, 
     if resume_from is not None:
         start_epoch = load_checkpoint(model, optimizer, resume_from, device=device)
     for epoch in range(start_epoch, total_epochs + 1):
+        epoch_start_time = time.time()  # start time of epoch
+
         train_loss, train_correct, train_samples = 0.0, 0, 0
         for batch_idx, (inputs, targets) in enumerate(train_loader, start=1):
+          batch_start_time = time.time()
           inputs, targets = inputs.to(device), targets.to(device)
           optimizer.zero_grad()
 
@@ -98,17 +103,24 @@ def linear_probe_train(model, train_loader, val_loader,   optimizer, criterion, 
           train_samples += targets.size(0)
 
           if batch_idx % log_interval == 0 or batch_idx == len(train_loader):
+            elapsed = time.time() - epoch_start_time
+            batches_done = batch_idx
+            total_batches = len(train_loader)
             batch_acc = (preds == targets).float().mean().item() * 100
+            remaining = elapsed / batches_done * (total_batches - batches_done)
             print(f"[Epoch {epoch}/{total_epochs}] [Train Batch {batch_idx}/{len(train_loader)}] "
-                  f"Loss: {loss.item():.4f} | Batch Acc: {batch_acc:6.2f}%")
+                  f"Loss: {loss.item():.4f} | Batch Acc: {batch_acc:6.2f}%"
+                  f"Elapsed: {elapsed:.1f}s | Est. remaining: {remaining:.1f}s")
 
         train_avg_loss = train_loss / train_samples
         train_acc = train_correct / train_samples * 100
+        epoch_time = time.time() - epoch_start_time
 
         print("-" * 60)
         print(f"📈 Epoch {epoch}/{total_epochs} Train Summary")
         print(f"   • Avg Loss : {train_avg_loss:.4f}")
         print(f"   • Accuracy : {train_acc:.2f}% ({train_correct}/{train_samples})")
+        print(f"   • Epoch Time: {epoch_time:.1f}s")
         print("-" * 60)
 
         # ---------------- Save Checkpoint ----------------
