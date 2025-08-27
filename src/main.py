@@ -128,7 +128,7 @@ def main():
         print("-" * 60)
         print("Linear Probe on ViT-b-32")
         print("-" * 60)
-        model, _, preprocess = open_clip.create_model_and_transforms('ViT-B-32', pretrained_model=args.pretrained_model)
+        model, _, preprocess = open_clip.create_model_and_transforms('ViT-B-32', pretrained=args.pretrained_model)
 
         num_classes = 10
 
