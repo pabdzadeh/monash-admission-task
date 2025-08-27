@@ -10,6 +10,7 @@ class CLIPWithLinearProbeSimple(nn.Module):
     def __init__(self, clip_model, num_classes, dropout=0.5, device="cuda"):
         super().__init__()
         self.clip = clip_model
+        self.device = device
         self.clip_visual = CLIPVisualPenultimate(clip_model).eval().to(device)
 
         # Freeze backbone
@@ -17,7 +18,7 @@ class CLIPWithLinearProbeSimple(nn.Module):
             param.requires_grad = False
 
         # Get feature dimension
-        dummy = torch.randn(1, 3, 224, 224)  # adjust input size if needed
+        dummy = torch.randn(1, 3, 224, 224) .to(device) # adjust input size if needed
         feature_dim = self.clip_visual(dummy).shape[1]
         print(f"Visual feature dimension: {feature_dim}")
 
@@ -28,9 +29,9 @@ class CLIPWithLinearProbeSimple(nn.Module):
         layers.append(nn.Linear(feature_dim, num_classes))
         self.linear_head = nn.Sequential(*layers)  # keep it separate
 
-    def forward(self, image=None, text=None):
+    def forward(self, image=None):
         # Get frozen features from visual backbone
-        features = self.clip_visual(image)  # [B, feature_dim]
+        features = self.clip_visual(image.to(self.device))  # [B, feature_dim]
         # Pass through trainable linear head
         logits = self.linear_head(features)
         return logits

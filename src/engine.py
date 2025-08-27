@@ -19,13 +19,13 @@ def eval(model, text,  test_loader, log_interval=10, device='cuda'):
       total_correct += (preds == targets).sum().item()
       total_samples += targets.size(0)
       if batch_idx % log_interval == 0 or batch_idx == len(test_loader):
-        batch_acc = (preds == targets).float().mean().item() * 100
+        batch_acc = (preds == targets).float().mean().item()
         print(f"[Batch {batch_idx:3d}/{len(test_loader)}] "
-              f"Batch Acc: {batch_acc:6.2f}%")
-  accuracy = total_correct / total_samples * 100
+              f"Batch Acc: {batch_acc:6.2f}")
+  accuracy = total_correct / total_samples
   print("=" * 50)
   print(f"📊 Evaluation Results")
-  print(f"   • Accuracy : {accuracy:.2f}% ({total_correct}/{total_samples})")
+  print(f"   • Accuracy : {accuracy:.3f} ({total_correct}/{total_samples})")
   print("=" * 50)
 
 def eval_linear_prob(model, test_loader, log_interval=10, device='cuda'):
