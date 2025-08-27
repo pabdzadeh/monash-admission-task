@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 import time
 
 class CLIPWithLinearProbeSimple(nn.Module):
-    def __init__(self, clip_model, num_classes, dropout=0.5, device):
+    def __init__(self, clip_model, num_classes, dropout=0.5, device="cuda"):
         super().__init__()
         self.clip = clip_model
         self.clip_visual = CLIPVisualPenultimate(clip_model).eval().to(device)
