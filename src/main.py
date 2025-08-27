@@ -190,7 +190,7 @@ def main():
         model.eval()
         train_loader, val_loader, test_loader = prepare_dataset(args, preprocess)
         tokenizer = open_clip.get_tokenizer('ViT-B-32')
-        text = tokenizer([args.prefix + x + args.postfix for x in ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]])
+        text = tokenizer([args.class_name_prefix + x + args.class_name_postfix for x in ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]])
         engine.eval(model, text, test_loader)
 
 
