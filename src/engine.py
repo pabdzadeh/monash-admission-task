@@ -33,7 +33,7 @@ def eval_linear_prob(model, test_loader, log_interval=10, device='cuda'):
     with torch.no_grad(), torch.autocast("cuda"):
         total_loss, total_correct, total_samples = 0.0, 0, 0
         for batch_idx, (images, targets) in enumerate(test_loader):
-            samples, targets = samples.to(device), targets.to(device)
+            images, targets = images.to(device), targets.to(device)
             outputs = model(images)
             preds = outputs.argmax(dim=1)
             total_correct += (preds == targets).sum().item()
