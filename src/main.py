@@ -54,14 +54,14 @@ def parse_args():
     )
 
     parser.add_argument(
-        "class name prefix",
+        "--class_name_prefix",
         help="The prefix to be added to all class names",
         default="",
         type=str,
     )
 
     parser.add_argument(
-        "class name postfix",
+        "--class_name_postfix",
         help="The postfix to be added to all class names",
         default="",
         type=str,
