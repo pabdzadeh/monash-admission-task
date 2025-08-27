@@ -11,7 +11,7 @@ def eval(model, text,  test_loader, log_interval=10, device='cuda'):
     for batch_idx, (samples, targets) in enumerate(test_loader):
       samples, targets = samples.to(device), targets.to(device)
       image_features = model.encode_image(samples)
-      text_features = model.encode_text(text)
+      text_features = model.encode_text(text.to(device))
       image_features /= image_features.norm(dim=-1, keepdim=True)
       text_features /= text_features.norm(dim=-1, keepdim=True)
       text_probs = (100.0 * image_features @ text_features.T).softmax(dim=-1)
