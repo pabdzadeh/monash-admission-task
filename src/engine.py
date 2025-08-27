@@ -128,7 +128,7 @@ def linear_probe_train(model, train_loader, val_loader,   optimizer, criterion, 
             batch_acc = (preds == targets).float().mean().item() * 100
             remaining = elapsed / batches_done * (total_batches - batches_done)
             print(f"[Epoch {epoch}/{total_epochs}] [Train Batch {batch_idx}/{len(train_loader)}] "
-                  f"Loss: {loss.item():.4f} | Batch Acc: {batch_acc:6.2f}%"
+                  f"Loss: {loss.item():.4f} | Batch Acc: {batch_acc:6.2f}% |"
                   f"Elapsed: {elapsed:.1f}s | Est. remaining: {remaining:.1f}s")
 
         train_avg_loss = train_loss / train_samples
