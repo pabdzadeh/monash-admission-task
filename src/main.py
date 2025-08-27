@@ -73,6 +73,13 @@ def parse_args():
         type=bool,
     )
 
+    parser.add_argument(
+        "--train_epochs",
+        help="number of training epochs for linear probe model",
+        default=100,
+        type=int,
+    )
+
     if len(sys.argv) == 1:
         parser.print_help()
     return parser.parse_args()
@@ -133,7 +140,12 @@ def main():
         train_loader, val_loader, test_loader = prepare_dataset(args, preprocess)
         optimizer = optim.Adam(model.linear_head.parameters(), lr=1e-3, weight_decay=1e-4)
         engine.linear_probe_train(model, train_loader, val_loader, optimizer, criterion, device=torch.device('cuda'),
-                                  checkpoint_folder=args.output_dir, resume_from=args.resume_from_checkpoint)
+                                  checkpoint_folder=args.output_dir, resume_from=args.resume_from_checkpoint, total_epochs=args.train_epochs)
+        print("-" * 60)
+        print("2nd Phase :Evaluate the Trained Model")
+        print("-" * 60)
+        # evaluate the trained model
+        engine.eval_linear_prob(model, test_loader)
 
     if args.zero_shot:
         print("-" * 60)

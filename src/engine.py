@@ -28,6 +28,25 @@ def eval(model, text,  test_loader, log_interval=10, device='cuda'):
   print(f"   • Accuracy : {accuracy:.2f}% ({total_correct}/{total_samples})")
   print("=" * 50)
 
+def eval_linear_prob(model, test_loader, log_interval=10, device='cuda'):
+    model.to(device)
+    with torch.no_grad(), torch.autocast("cuda"):
+        total_loss, total_correct, total_samples = 0.0, 0, 0
+        for batch_idx, (images, targets) in enumerate(test_loader):
+            samples, targets = samples.to(device), targets.to(device)
+            outputs = model(images)
+            preds = outputs.argmax(dim=1)
+            total_correct += (preds == targets).sum().item()
+            total_samples += targets.size(0)
+            if batch_idx % log_interval == 0 or batch_idx == len(test_loader):
+                batch_acc = (preds == targets).float().mean().item() * 100
+                print(f"[Batch {batch_idx:3d}/{len(test_loader)}] "
+                      f"Batch Acc: {batch_acc:6.2f}%")
+    accuracy = total_correct / total_samples * 100
+    print("=" * 50)
+    print(f"📊 Evaluation Results")
+    print(f"   • Accuracy : {accuracy:.2f}% ({total_correct}/{total_samples})")
+    print("=" * 50)
 
 def save_checkpoint(model, optimizer, epoch, folder="checkpoints"):
     """
