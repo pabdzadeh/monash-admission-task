@@ -85,6 +85,7 @@ class CLIPWithLinearProbeExact(nn.Module):
     # Train logistic regression once for a given weight decay
     # ----------------------------
     def _train_once(self, X, y, lmbd, max_iter=1000):
+        """Train logistic regression once with manual L2 regularization"""
         n, d = X.shape
         if self.linear is None:
             self.linear = nn.Linear(d, self.num_classes, bias=True).to(self.device)
@@ -93,34 +94,27 @@ class CLIPWithLinearProbeExact(nn.Module):
         X, y = X.to(self.device), y.to(self.device)
 
         optimizer = LBFGS(model.parameters(), max_iter=max_iter, line_search_fn="strong_wolfe")
-
         start_time = time.time()
 
         def closure():
             optimizer.zero_grad()
             logits = model(X)
             loss = F.cross_entropy(logits, y)
-
-            # --- manual L2 regularization ---
-            l2_loss = 0.0
-            for param in model.parameters():
-                l2_loss += (param ** 2).sum()
+            # Manual L2 regularization
+            l2_loss = sum((p ** 2).sum() for p in model.parameters())
             loss = loss + lmbd * l2_loss
-            # -------------------------------
-
             loss.backward()
             return loss
 
         optimizer.step(closure)
         elapsed = time.time() - start_time
 
-        # compute accuracy
+        # Training accuracy
         with torch.no_grad():
             preds = model(X).argmax(dim=1)
             acc = (preds == y).float().mean().item()
 
-        print(f"Training done | λ={lmbd:.2e} | Train Acc={acc:.4f} | Elapsed={elapsed:.1f}s")
-        return model, acc
+        return model, acc, elapsed
 
     # ----------------------------
     # Fit logistic regression with λ sweep and logging
@@ -129,55 +123,64 @@ class CLIPWithLinearProbeExact(nn.Module):
         X_train, y_train = self.extract_features(train_loader)
         X_val, y_val = self.extract_features(val_loader)
 
+        # Initial λ candidates
         lambdas = [1e-6, 1e-4, 1e-2, 1, 1e2, 1e4, 1e6]
         best_acc, best_model, best_lambda = -1, None, None
 
-        def evaluate_lambda(lmbd):
-            model, train_acc = self._train_once(X_train, y_train, lmbd, max_iter)
-            with torch.no_grad():
-                logits = model(X_val.to(self.device))
-                preds = logits.argmax(dim=1).cpu()
-                val_acc = (preds == y_val).float().mean().item()
-            return val_acc, model, train_acc
+        sweep_num = 0
 
-        print(f"Starting hyperparameter sweep over {len(lambdas)} initial λ values...")
-        iteration = 0
-        total_lambdas = len(lambdas)
+        print(f"Starting hyperparameter sweep over {len(lambdas)} initial λ values...\n")
 
         while True:
-            results = []
-            for lmbd in lambdas:
-                iteration += 1
-                val_acc, model, train_acc = evaluate_lambda(lmbd)
-                results.append((val_acc, model, lmbd))
-                remaining = total_lambdas - iteration
-                print(f"[{iteration}/{total_lambdas}] λ={lmbd:.2e} | "
+            sweep_num += 1
+            sweep_start = time.time()
+            current_lambdas = list(lambdas)  # snapshot for current sweep
+            num_current = len(current_lambdas)
+
+            for i, lmbd in enumerate(current_lambdas, 1):
+                model, train_acc, elapsed = self._train_once(X_train, y_train, lmbd, max_iter)
+
+                # Validation accuracy
+                with torch.no_grad():
+                    logits = model(X_val.to(self.device))
+                    preds = logits.argmax(dim=1).cpu()
+                    val_acc = (preds == y_val).float().mean().item()
+
+                remaining = num_current - i
+                est_remaining = elapsed * remaining
+
+                print(f"[Sweep {sweep_num} | {i}/{num_current}] λ={lmbd:.2e} | "
                       f"Train Acc={train_acc:.4f} | Val Acc={val_acc:.4f} | "
-                      f"Est. Remaining: {remaining} steps")
+                      f"Time={elapsed:.1f}s | ETA={est_remaining:.1f}s")
 
-            # pick best
-            accs = [r[0] for r in results]
-            best_idx = int(np.argmax(accs))
-            best_acc, best_model, best_lambda = results[best_idx]
+                # Update best
+                if val_acc > best_acc:
+                    best_acc, best_model, best_lambda = val_acc, model, lmbd
 
-            # stopping criterion
+            sweep_elapsed = time.time() - sweep_start
+            print(f"--- Sweep {sweep_num} completed in {sweep_elapsed:.1f}s | "
+                  f"Best λ so far: {best_lambda:.2e}, Val Acc: {best_acc:.4f} ---\n")
+
+            # Stopping criterion
             if len(lambdas) > 96:
                 break
 
-            # refine grid around best λ
+            # Refine λ grid around best λ
+            best_idx = current_lambdas.index(best_lambda) if best_lambda in current_lambdas else len(
+                current_lambdas) // 2
             if best_idx == 0:
-                new_range = np.logspace(np.log10(lambdas[0]) - 2, np.log10(lambdas[0]), 8)
-            elif best_idx == len(lambdas) - 1:
-                new_range = np.logspace(np.log10(lambdas[-1]), np.log10(lambdas[-1]) + 2, 8)
+                new_range = np.logspace(np.log10(current_lambdas[0]) - 2, np.log10(current_lambdas[0]), 8)
+            elif best_idx == len(current_lambdas) - 1:
+                new_range = np.logspace(np.log10(current_lambdas[-1]), np.log10(current_lambdas[-1]) + 2, 8)
             else:
-                left, right = lambdas[best_idx - 1], lambdas[best_idx + 1]
+                left, right = current_lambdas[best_idx - 1], current_lambdas[best_idx + 1]
                 new_range = np.logspace(np.log10(left), np.log10(right), 8)
 
             lambdas = sorted(set(lambdas + list(new_range)))
-            total_lambdas = len(lambdas)  # update total for remaining time estimate
 
         self.linear = best_model
-        print(f"Best λ = {best_lambda:.2e}, Val Acc = {best_acc:.4f}")
+        print(f"=== Hyperparameter search finished ===")
+        print(f"Best λ = {best_lambda:.2e}, Validation Accuracy = {best_acc:.4f}\n")
         return best_acc
 
     # ----------------------------
