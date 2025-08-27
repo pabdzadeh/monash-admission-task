@@ -6,10 +6,11 @@ import numpy as np
 from torch.utils.data import DataLoader
 import time
 
-class CLIPWithLinearProbeStandard(nn.Module):
-    def __init__(self, clip_model, num_classes, dropout=0.5):
+class CLIPWithLinearProbeSimple(nn.Module):
+    def __init__(self, clip_model, num_classes, dropout=0.5, device):
         super().__init__()
         self.clip = clip_model
+        self.clip_visual = CLIPVisualPenultimate(clip_model).eval().to(device)
 
         # Freeze backbone
         for param in self.clip.parameters():
@@ -17,7 +18,7 @@ class CLIPWithLinearProbeStandard(nn.Module):
 
         # Get feature dimension
         dummy = torch.randn(1, 3, 224, 224)  # adjust input size if needed
-        feature_dim = self.clip.visual(dummy).shape[1]
+        feature_dim = self.clip_visual(dummy).shape[1]
         print(f"Visual feature dimension: {feature_dim}")
 
         # Linear head (trainable)
@@ -29,7 +30,7 @@ class CLIPWithLinearProbeStandard(nn.Module):
 
     def forward(self, image=None, text=None):
         # Get frozen features from visual backbone
-        features = self.clip.visual(image)  # [B, feature_dim]
+        features = self.clip_visual(image)  # [B, feature_dim]
         # Pass through trainable linear head
         logits = self.linear_head(features)
         return logits

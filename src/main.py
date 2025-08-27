@@ -10,7 +10,7 @@ import open_clip
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
-from linear_probe_model import CLIPWithLinearProbeStandard, CLIPWithLinearProbeExact
+from linear_probe_model import CLIPWithLinearProbeSimple, CLIPWithLinearProbeExact
 
 def parse_args():
     """
@@ -41,7 +41,7 @@ def parse_args():
 
     parser.add_argument(
         "--linear_probe_type",
-        help="type of linear probe to use: Standard, Exact",
+        help="type of linear probe to use: Simple, Exact",
         default='exact',
         type=str,
     )
@@ -157,8 +157,8 @@ def main():
 
         train_loader, val_loader, test_loader = prepare_dataset(args, preprocess)
 
-        if args.linear_probe_type == 'standard':
-            model = CLIPWithLinearProbeStandard(clip_model=model,
+        if args.linear_probe_type == 'simple':
+            model = CLIPWithLinearProbeSimple(clip_model=model,
                                         num_classes=num_classes, dropout=0.5)
             print(model)
             criterion = nn.CrossEntropyLoss()
