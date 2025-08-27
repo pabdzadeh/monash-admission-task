@@ -1,6 +1,9 @@
 import torch
 import torch.nn as nn
-
+import torch.nn.functional as F
+from torch.optim import LBFGS
+import numpy as np
+from torch.utils.data import DataLoader
 
 class CLIPWithLinearProbeStandard(nn.Module):
     def __init__(self, clip_model, num_classes, dropout=0.5):
@@ -31,12 +34,6 @@ class CLIPWithLinearProbeStandard(nn.Module):
         return logits
 
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.optim import LBFGS
-import numpy as np
-from torch.utils.data import DataLoader
 
 # ----------------------------
 # Wrapper for penultimate features
