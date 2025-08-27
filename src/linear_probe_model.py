@@ -113,6 +113,8 @@ class CLIPWithLinearProbeExact(nn.Module):
     # ----------------------------
     # Fit logistic regression and sweep weight decay (λ)
     # ----------------------------
+    import time
+
     def fit(self, train_loader, val_loader, max_iter=1000):
         X_train, y_train = self.extract_features(train_loader)
         X_val, y_val = self.extract_features(val_loader)
@@ -121,28 +123,40 @@ class CLIPWithLinearProbeExact(nn.Module):
         best_acc, best_model, best_lambda = -1, None, None
 
         def evaluate_lambda(lmbd):
-            model, _ = self._train_once(X_train, y_train, lmbd, max_iter)
+            start_time = time.time()
+            model, train_acc = self._train_once(X_train, y_train, lmbd, max_iter)
+            elapsed = time.time() - start_time
             with torch.no_grad():
                 logits = model(X_val.to(self.device))
                 preds = logits.argmax(dim=1).cpu()
-                acc = (preds == y_val).float().mean().item()
-            return acc, model
+                val_acc = (preds == y_val).float().mean().item()
+            return model, train_acc, val_acc, elapsed
 
-        # simple parametric refinement loop
+        print(f"Starting hyperparameter sweep over {len(lambdas)} initial λ values...")
+        total_lambdas = len(lambdas)
+        iteration = 0
+
         while True:
             results = []
             for lmbd in lambdas:
-                acc, model = evaluate_lambda(lmbd)
-                results.append((acc, model, lmbd))
+                iteration += 1
+                model, train_acc, val_acc, elapsed = evaluate_lambda(lmbd)
+                results.append((val_acc, model, lmbd))
+                remaining = total_lambdas - iteration
+                print(f"[{iteration}/{total_lambdas}] λ={lmbd:.2e} | "
+                      f"Train Acc: {train_acc:.4f} | Val Acc: {val_acc:.4f} | "
+                      f"Elapsed: {elapsed:.1f}s | Est. Remaining: {elapsed * remaining:.1f}s")
 
+            # Choose best
             accs = [r[0] for r in results]
             best_idx = int(np.argmax(accs))
             best_acc, best_model, best_lambda = results[best_idx]
 
-            if len(lambdas) > 96:  # stopping criterion
+            # Stopping criterion
+            if len(lambdas) > 96:
                 break
 
-            # refine around best lambda
+            # Refine grid around best λ
             if best_idx == 0:
                 new_range = np.logspace(np.log10(lambdas[0]) - 2, np.log10(lambdas[0]), 8)
             elif best_idx == len(lambdas) - 1:
@@ -152,6 +166,7 @@ class CLIPWithLinearProbeExact(nn.Module):
                 new_range = np.logspace(np.log10(left), np.log10(right), 8)
 
             lambdas = sorted(set(lambdas + list(new_range)))
+            total_lambdas = len(lambdas)  # update total for remaining time estimate
 
         self.linear = best_model
         print(f"Best λ = {best_lambda:.2e}, Val Acc = {best_acc:.4f}")
