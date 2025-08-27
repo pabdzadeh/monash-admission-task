@@ -12,6 +12,90 @@ import torch.optim as optim
 import numpy as np
 from linear_probe_model import CLIPWithLinearProbeSimple, CLIPWithLinearProbeExact
 
+cifar10_prompts = {
+    "airplane": [
+        "airplane",
+        "Airplane",
+        "a photo of an airplane",
+        "a flying airplane",
+        "a passenger airplane",
+        "an aircraft"
+    ],
+    "automobile": [
+        "automobile",
+        "car",
+        "a photo of a car",
+        "a small car",
+        "a sports car",
+        "a vehicle"
+    ],
+    "bird": [
+        "bird",
+        "a bird",
+        "a small bird",
+        "a colorful bird",
+        "a flying bird",
+        "wild bird"
+    ],
+    "cat": [
+        "cat",
+        "a cat",
+        "domestic cat",
+        "a small cat",
+        "a cute cat",
+        "kitten"
+    ],
+    "deer": [
+        "deer",
+        "a deer",
+        "a wild deer",
+        "a forest deer",
+        "a brown deer",
+        "stag"
+    ],
+    "dog": [
+        "dog",
+        "a dog",
+        "puppy",
+        "a small dog",
+        "a cute dog",
+        "domestic dog"
+    ],
+    "frog": [
+        "frog",
+        "a frog",
+        "a green frog",
+        "a small frog",
+        "amphibian frog",
+        "pond frog"
+    ],
+    "horse": [
+        "horse",
+        "a horse",
+        "a brown horse",
+        "a white horse",
+        "a running horse",
+        "stallion"
+    ],
+    "ship": [
+        "ship",
+        "a ship",
+        "a boat",
+        "a large ship",
+        "a sailing ship",
+        "cargo ship"
+    ],
+    "truck": [
+        "truck",
+        "a truck",
+        "a large truck",
+        "a delivery truck",
+        "a heavy truck",
+        "lorry"
+    ]
+}
+
+
 def parse_args():
     """
     Parse the following arguments for a default parser.
@@ -51,6 +135,12 @@ def parse_args():
         help="checkpoints save dir",
         default=".",
         type=str,
+    )
+
+    parser.add_argument("--class_name_type",
+        help="The index of class_name type from this list: [airplane, Airplane, a photo of an airplane, a flying airplane, a passenger airplane, an aircraft] similar changes for all class names in each index",
+        default=0,
+        type=int,
     )
 
     parser.add_argument(
@@ -190,7 +280,7 @@ def main():
         model.eval()
         train_loader, val_loader, test_loader = prepare_dataset(args, preprocess)
         tokenizer = open_clip.get_tokenizer('ViT-B-32')
-        text = tokenizer([args.class_name_prefix + x + args.class_name_postfix for x in ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]])
+        text = tokenizer([cifar10_prompts[x][5] for x in cifar10_prompts.keys()])
         engine.eval(model, text, test_loader)
 
 
