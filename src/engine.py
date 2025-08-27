@@ -39,13 +39,13 @@ def eval_linear_prob(model, test_loader, log_interval=10, device='cuda'):
             total_correct += (preds == targets).sum().item()
             total_samples += targets.size(0)
             if batch_idx % log_interval == 0 or batch_idx == len(test_loader):
-                batch_acc = (preds == targets).float().mean().item() * 100
+                batch_acc = (preds == targets).float().mean().item()
                 print(f"[Batch {batch_idx:3d}/{len(test_loader)}] "
-                      f"Batch Acc: {batch_acc:6.2f}%")
-    accuracy = total_correct / total_samples * 100
+                      f"Batch Acc: {batch_acc:6.2f}")
+    accuracy = total_correct / total_samples
     print("=" * 50)
     print(f"📊 Evaluation Results")
-    print(f"   • Accuracy : {accuracy:.2f}% ({total_correct}/{total_samples})")
+    print(f"   • Accuracy : {accuracy:.2f} ({total_correct}/{total_samples})")
     print("=" * 50)
 
 def save_checkpoint(model, optimizer, epoch, folder="checkpoints"):
@@ -125,20 +125,20 @@ def linear_probe_train(model, train_loader, val_loader,   optimizer, criterion, 
             elapsed = time.time() - epoch_start_time
             batches_done = batch_idx
             total_batches = len(train_loader)
-            batch_acc = (preds == targets).float().mean().item() * 100
+            batch_acc = (preds == targets).float().mean().item()
             remaining = elapsed / batches_done * (total_batches - batches_done)
             print(f"[Epoch {epoch}/{total_epochs}] [Train Batch {batch_idx}/{len(train_loader)}] "
-                  f"Loss: {loss.item():.4f} | Batch Acc: {batch_acc:6.2f}% |"
+                  f"Loss: {loss.item():.4f} | Batch Acc: {batch_acc:6.2f} |"
                   f"Elapsed: {elapsed:.1f}s | Est. remaining: {remaining:.1f}s")
 
         train_avg_loss = train_loss / train_samples
-        train_acc = train_correct / train_samples * 100
+        train_acc = train_correct / train_samples
         epoch_time = time.time() - epoch_start_time
 
         print("-" * 60)
         print(f"📈 Epoch {epoch}/{total_epochs} Train Summary")
         print(f"   • Avg Loss : {train_avg_loss:.4f}")
-        print(f"   • Accuracy : {train_acc:.2f}% ({train_correct}/{train_samples})")
+        print(f"   • Accuracy : {train_acc:.2f} ({train_correct}/{train_samples})")
         print(f"   • Epoch Time: {epoch_time:.1f}s")
         print("-" * 60)
 
@@ -161,16 +161,16 @@ def linear_probe_train(model, train_loader, val_loader,   optimizer, criterion, 
             val_samples += targets.size(0)
 
             if batch_idx % log_interval == 0 or batch_idx == len(val_loader):
-              batch_acc = (preds == targets).float().mean().item() * 100
+              batch_acc = (preds == targets).float().mean().item()
               print(f"[Epoch {epoch}/{total_epochs}] [Val Batch {batch_idx}/{len(val_loader)}] "
-                    f"Loss: {loss.item():.4f} | Batch Acc: {batch_acc:6.2f}%")
+                    f"Loss: {loss.item():.4f} | Batch Acc: {batch_acc:6.2f}")
 
         val_avg_loss = val_loss / val_samples
-        val_acc = val_correct / val_samples * 100
+        val_acc = val_correct / val_samples
 
         print("=" * 60)
         print(f"📊 Epoch {epoch}/{total_epochs} Validation Summary")
         print(f"   • Avg Loss : {val_avg_loss:.4f}")
-        print(f"   • Accuracy : {val_acc:.2f}% ({val_correct}/{val_samples})")
+        print(f"   • Accuracy : {val_acc:.2f} ({val_correct}/{val_samples})")
         print("=" * 60)
 
