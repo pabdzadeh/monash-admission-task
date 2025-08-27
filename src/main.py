@@ -10,7 +10,7 @@ import open_clip
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
-from linear_probe_model import CLIPWithLinearProbe
+from linear_probe_model import CLIPWithLinearProbeStandard, CLIPWithLinearProbeExact
 
 def parse_args():
     """
@@ -38,6 +38,14 @@ def parse_args():
         type=int,
     )
 
+
+    parser.add_argument(
+        "--linear_probe_type",
+        help="type of linear probe to use: Standard, Exact",
+        default='exact',
+        type=str,
+    )
+
     parser.add_argument(
         "--output_dir",
         help="checkpoints save dir",
@@ -62,14 +70,14 @@ def parse_args():
     parser.add_argument(
         "--linear_probe",
         help="train linear probe on ViT-b-32",
-        default=False,
+        default=True,
         type=bool,
     )
 
     parser.add_argument(
         "--zero_shot",
-        help="evaluation mode",
-        default=True,
+        help="Zero-shot transformer classification",
+        default=False,
         type=bool,
     )
 
@@ -132,22 +140,32 @@ def main():
 
         num_classes = 10
 
-        model = CLIPWithLinearProbe(clip_model=model,
-                               num_classes=num_classes, dropout=0.5)
-        print(model)
 
-        criterion = nn.CrossEntropyLoss()
         train_loader, val_loader, test_loader = prepare_dataset(args, preprocess)
-        optimizer = optim.Adam(model.linear_head.parameters(), lr=1e-3, weight_decay=1e-4)
-        engine.linear_probe_train(model, train_loader, val_loader, optimizer, criterion, device=torch.device('cuda'),
-                                  checkpoint_folder=args.output_dir, resume_from=args.resume_from_checkpoint, total_epochs=args.train_epochs)
+
+        if args.linear_probe_type == 'standard':
+            model = CLIPWithLinearProbeStandard(clip_model=model,
+                                        num_classes=num_classes, dropout=0.5)
+            print(model)
+            criterion = nn.CrossEntropyLoss()
+            optimizer = optim.Adam(model.linear_head.parameters(), lr=1e-3, weight_decay=1e-4)
+            engine.linear_probe_train(model, train_loader, val_loader, optimizer, criterion, device=torch.device('cuda'),
+                                       checkpoint_folder=args.output_dir, resume_from=args.resume_from_checkpoint, total_epochs=args.train_epochs)
+
+        if args.linear_probe_type == 'exact':
+            model = CLIPWithLinearProbeExact(clip_model=model,
+                                                num_classes=num_classes, device=torch.device('cuda'))
+            best_val_acc = model.fit(train_loader, val_loader, max_iter=1000)
+            print("Validation accuracy after fit:", best_val_acc)
+
         print("-" * 60)
         print("2nd Phase :Evaluate the Trained Model")
         print("-" * 60)
         # evaluate the trained model
+        # preds, y_true = model.predict(val_loader)
         engine.eval_linear_prob(model, test_loader)
 
-    if args.zero_shot:
+    if not args.linear_probe or args.zero_shot:
         print("-" * 60)
         print("Zero Shot")
         print("-" * 60)
