@@ -63,14 +63,14 @@ def parse_args():
     parser.add_argument(
         "class name postfix",
         help="The postfix to be added to all class names",
-        default=None,
+        default="",
         type=str,
     )
 
     parser.add_argument(
         "--resume_from_checkpoint",
         help="checkpoint path",
-        default=None,
+        default="",
         type=str,
     )
 
