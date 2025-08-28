@@ -123,7 +123,7 @@ The training and evaluation pipeline can be customized using the following argum
 | `--class_name_type`             | int  | 0       | Index of class name variation (e.g., `0 = airplane`, `1 = Airplane`, `2 = a photo of an airplane`, etc.). Applies across all CIFAR-10 classes. |
 | `--class_name_prefix`           | str  | ""      | Prefix to be added to all class names. Useful for prompt engineering.                                                                          |
 | `--class_name_postfix`          | str  | ""      | Postfix to be added to all class names. Useful for prompt engineering.                                                                         |
-| `--resume_from_checkpoint`      | str  | None    | Path to resume training from a saved checkpoint.                                                                                               |
+| `--resume_from_checkpoint`      | str  | None    | Path to resume training from a saved checkpoint for the simple linear probe.                                                                   |
 | `--pretrained_model`            | str  | None    | Name of pretrained CLIP variant (e.g., `"ViT-B-32"`).                                                                                          |
 | `--linear_probe`                | bool | False   | If `True`, trains a linear probe on CLIP embeddings.                                                                                           |
 | `--zero_shot`                   | bool | True    | If `True`, evaluates using zero-shot classification.                                                                                           |
@@ -165,10 +165,8 @@ The training and evaluation pipeline can be customized using the following argum
 ---
 
 ## 📌 Future Work
-
-- Extend experiments to **CIFAR-100** or **ImageNet** subsets.
-- Explore **prompt ensembling** for improved zero-shot classification.
-- Evaluate other CLIP backbones (e.g., ViT-B/16, RN50).
+- Further explore prompt engineering.
+- Evaluate other CLIP backbones and pretrained models.
 
 ---
 
