@@ -132,14 +132,10 @@ The training and evaluation pipeline can be customized using the following argum
 ---
 
 📌 **Usage Example**:
-    ```bash
-    python src/main.py \
-      --batch_size 32 \
-      --linear_probe True \
-      --train_epochs 50 \
-      --class_name_type 2 \
-      --output_dir ./checkpoints
-
+    ```
+    python src/main.py --batch_size 32 --linear_probe True --train_epochs 50 --class_name_type 2 --output_dir ./checkpoints
+    ```
+    
 ## 📊 Results
 ### Pretrained on laion2b_s34b_b79k
 | Experiment                                                                               | Accuracy (%) |
