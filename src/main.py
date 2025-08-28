@@ -97,20 +97,6 @@ cifar10_prompts = {
 
 
 def parse_args():
-    """
-    Parse the following arguments for a default parser.
-    Args:
-        shard_id (int): shard id for the current machine. Starts from 0 to
-            num_shards - 1. If single machine is used, then set shard id to 0.
-        num_shards (int): number of shards using by the job.
-        init_method (str): initialization method to launch the job with multiple
-            devices. Options includes TCP or shared file-system for
-            initialization. details can be find in
-            https://pytorch.org/docs/stable/distributed.html#tcp-initialization
-        cfg (str): path to the config file.
-        opts (argument): provide addtional options from the command line, it
-            overwrites the config loaded from file.
-    """
     parser = argparse.ArgumentParser(
         description="Provide training and testing pipeline."
     )
@@ -181,7 +167,7 @@ def parse_args():
     parser.add_argument(
         "--zero_shot",
         help="Zero-shot transformer classification",
-        default=False,
+        default=True,
         type=bool,
     )
 
@@ -271,7 +257,7 @@ def main():
         if args.linear_probe_type == 'simple':
             engine.eval_linear_prob(model, test_loader)
 
-    if not args.linear_probe or args.zero_shot:
+    if not args.linear_probe and args.zero_shot:
         print("-" * 60)
         print("Zero Shot")
         print("-" * 60)

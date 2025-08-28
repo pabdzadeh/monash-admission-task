@@ -111,6 +111,36 @@ You can also experiment with different prompt variations, prefixes, and postfixe
 
 ---
 
+## ⚙️ Command-Line Arguments
+
+The training and evaluation pipeline can be customized using the following arguments:
+
+| Argument                | Type   | Default | Description                                                                                                                                    |
+|--------------------------|--------|---------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `--batch_size`           | int    | 16      | Batch size for training and evaluation.                                                                                                        |
+| `--linear_probe_type`    | str    | "exact" | Type of linear probe to use: `Simple` or `Exact`.                                                                                              |
+| `--output_dir`           | str    | "."     | Directory to save checkpoints and results.                                                                                                     |
+| `--class_name_type`      | int    | 0       | Index of class name variation (e.g., `0 = airplane`, `1 = Airplane`, `2 = a photo of an airplane`, etc.). Applies across all CIFAR-10 classes. |
+| `--class_name_prefix`    | str    | ""      | Prefix to be added to all class names. Useful for prompt engineering.                                                                          |
+| `--class_name_postfix`   | str    | ""      | Postfix to be added to all class names. Useful for prompt engineering.                                                                         |
+| `--resume_from_checkpoint` | str  | None    | Path to resume training from a saved checkpoint.                                                                                               |
+| `--pretrained_model`     | str    | None    | Name of pretrained CLIP variant (e.g., `"ViT-B-32"`).                                                                                          |
+| `--linear_probe`         | bool   | False   | If `True`, trains a linear probe on CLIP embeddings.                                                                                           |
+| `--zero_shot`            | bool   | True    | If `True`, evaluates using zero-shot classification.                                                                                           |
+| `--train_epochs`         | int    | 100     | Number of training epochs for the simple linear probe model.                                                                                   |
+
+---
+
+📌 **Usage Example**:
+
+```bash
+python src/main.py \
+  --batch_size 32 \
+  --linear_probe True \
+  --train_epochs 50 \
+  --class_name_type 2 \
+  --output_dir ./checkpoints
+
 ## 📊 Results
 ### Pretrained on laion2b_s34b_b79k
 | Experiment                                                                               | Accuracy (%) |
