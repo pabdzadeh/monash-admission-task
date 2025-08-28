@@ -15,7 +15,7 @@ from linear_probe_model import CLIPWithLinearProbeSimple, CLIPWithLinearProbeExa
 cifar10_prompts = {
     "airplane": [
         "airplane",
-        "Airplane",
+        "an airplane",
         "a photo of an airplane",
         "a flying airplane",
         "a passenger airplane",
@@ -23,75 +23,75 @@ cifar10_prompts = {
     ],
     "automobile": [
         "automobile",
-        "car",
-        "a photo of a car",
-        "a small car",
-        "a sports car",
-        "a vehicle"
+        "an automobile",
+        "a photo of an automobile",
+        "a small automobile",
+        "a sports automobile",
+        "a car"
     ],
     "bird": [
         "bird",
         "a bird",
-        "a small bird",
+        "a photo of a  bird",
         "a colorful bird",
         "a flying bird",
-        "wild bird"
+        "a chick"
     ],
     "cat": [
         "cat",
         "a cat",
-        "domestic cat",
+        "a photo of cat",
         "a small cat",
         "a cute cat",
-        "kitten"
+        "a kitten"
     ],
     "deer": [
         "deer",
         "a deer",
-        "a wild deer",
+        "a photo of a deer",
         "a forest deer",
         "a brown deer",
-        "stag"
+        "a stag"
     ],
     "dog": [
         "dog",
         "a dog",
-        "puppy",
+        "a photo of a dog",
         "a small dog",
         "a cute dog",
-        "domestic dog"
+        "a puppy"
     ],
     "frog": [
         "frog",
         "a frog",
-        "a green frog",
+        "a photo of a frog",
         "a small frog",
-        "amphibian frog",
-        "pond frog"
+        "an cute frog",
+        "an amphibian"
     ],
     "horse": [
         "horse",
         "a horse",
-        "a brown horse",
+        "a photo of a horse",
         "a white horse",
         "a running horse",
-        "stallion"
+        "a stallion"
     ],
     "ship": [
         "ship",
         "a ship",
-        "a boat",
+        "a phot of a ship",
         "a large ship",
         "a sailing ship",
-        "cargo ship"
+        "a boat"
     ],
     "truck": [
         "truck",
         "a truck",
-        "a large truck",
+        "a photo of a truck",
         "a delivery truck",
         "a heavy truck",
-        "lorry"
+        "a lorry"
     ]
 }
 

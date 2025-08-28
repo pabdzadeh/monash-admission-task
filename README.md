@@ -48,18 +48,18 @@ Alternatively, you can run the notebook directly on **[Google Colab](https://col
 This project explores how **different textual descriptions (prompts)** for class names can influence CLIP’s performance in both zero-shot classification and linear probing.  
 Each CIFAR-10 class is associated with **six prompt variations**, ranging from short labels to descriptive natural language.  
 
-| Class          | Prompt Variations                                                                                |
-|----------------|--------------------------------------------------------------------------------------------------|
-| **airplane**   | airplane, Airplane, a photo of an airplane, a flying airplane, a passenger airplane, an aircraft |
-| **automobile** | automobile, car, a photo of a car, a small car, a sports car, a vehicle                          |
-| **bird**       | bird, a bird, a small bird, a colorful bird, a flying bird, wild bird                            |
-| **cat**        | cat, a cat, domestic cat, a small cat, a cute cat, kitten                                        |
-| **deer**       | deer, a deer, a wild deer, a forest deer, a brown deer, stag                                     |
-| **dog**        | dog, a dog, puppy, a small dog, a cute dog, domestic dog                                         |
-| **frog**       | frog, a frog, a green frog, a small frog, amphibian frog, pond frog                              |
-| **horse**      | horse, a horse, a brown horse, a white horse, a running horse, stallion                          |
-| **ship**       | ship, a ship, a boat, a large ship, a sailing ship, cargo ship                                   |
-| **truck**      | truck, a truck, a large truck, a delivery truck, a heavy truck, lorry                            |
+| Class          | Prompt Variations                                                                                   |
+|----------------|-----------------------------------------------------------------------------------------------------|
+| **airplane**   | airplane, an airplane, a photo of an airplane, a flying airplane, a passenger airplane, an aircraft |
+| **automobile** | automobile, an automobile, a photo of an automobile, a small car, a sports car, a vehicle           |
+| **bird**       | bird, a bird, a photo of a bird, a colorful bird, a flying bird, wild bird                          |
+| **cat**        | cat, a cat, a photo of a cat, a small cat, a cute cat, kitten                                       |
+| **deer**       | deer, a deer, a photo of a deer, a forest deer, a brown deer, a stag                                |
+| **dog**        | dog, a dog, a photo of a dog, a small dog, a cute dog, a puppy                                      |
+| **frog**       | frog, a frog, a photo of a frog, a small frog, a cute frog, an amphibian                            |
+| **horse**      | horse, a horse, a photo of a horse, a white horse, a running horse, a stallion                      |
+| **ship**       | ship, a ship, a photo of a ship, a large ship, a sailing ship, a boat                               |
+| **truck**      | truck, a truck, a photo of a truck, a delivery truck, a heavy truck, a lorry                        |
 
 ---
 
