@@ -124,7 +124,7 @@ You can also experiment with different prompt variations, prefixes, and postfixe
 | Experiment                                                                               | Accuracy (%) |
 |------------------------------------------------------------------------------------------|--------------|
 | Zero-shot (default prompts)                                                              | 95.2         |
-| Zero-shot (max of engineered prompts)                                                    | 92.3         |
+| Zero-shot (max of engineered prompts)                                                    | 95.3         |
 
 
 ---
