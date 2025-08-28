@@ -280,7 +280,7 @@ def main():
         model.eval()
         train_loader, val_loader, test_loader = prepare_dataset(args, preprocess)
         tokenizer = open_clip.get_tokenizer('ViT-B-32')
-        text = tokenizer([cifar10_prompts[x][args.class_name_type] for x in cifar10_prompts.keys()])
+        text = tokenizer([args.class_name_prefix + cifar10_prompts[x][args.class_name_type] + args.class_name_postfix for x in cifar10_prompts.keys()])
         engine.eval(model, text, test_loader)
 
 

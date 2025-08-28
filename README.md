@@ -43,6 +43,33 @@ Alternatively, you can run the notebook directly on **[Google Colab](https://col
 
 ---
 
+## 📝 CIFAR-10 Prompt Variations
+
+This project explores how **different textual descriptions (prompts)** for class names can influence CLIP’s performance in both zero-shot classification and linear probing.  
+Each CIFAR-10 class is associated with **six prompt variations**, ranging from short labels to descriptive natural language.  
+
+| Class       | Prompt Variations                                                                 |
+|-------------|-----------------------------------------------------------------------------------|
+| **airplane**   | airplane, Airplane, a photo of an airplane, a flying airplane, a passenger airplane, an aircraft |
+| **automobile** | automobile, car, a photo of a car, a small car, a sports car, a vehicle        |
+| **bird**       | bird, a bird, a small bird, a colorful bird, a flying bird, wild bird          |
+| **cat**        | cat, a cat, domestic cat, a small cat, a cute cat, kitten                      |
+| **deer**       | deer, a deer, a wild deer, a forest deer, a brown deer, stag                   |
+| **dog**        | dog, a dog, puppy, a small dog, a cute dog, domestic dog                       |
+| **frog**       | frog, a frog, a green frog, a small frog, amphibian frog, pond frog            |
+| **horse**      | horse, a horse, a brown horse, a white horse, a running horse, stallion         |
+| **ship**       | ship, a ship, a boat, a large ship, a sailing ship, cargo ship                 |
+| **truck**      | truck, a truck, a large truck, a delivery truck, a heavy truck, lorry          |
+
+---
+
+📌 **Why is this important?**  
+- Tests whether **context-rich phrases** (e.g., `"a colorful bird"`) outperform short labels (e.g., `"bird"`).  
+- Evaluates CLIP’s **sensitivity to prompt engineering**.  
+- Supports systematic experimentation by selecting a **prompt type index** (`--class_name_type`) or adding **prefixes/postfixes**.  
+
+This makes it easy to reproduce results and explore new linguistic variations.
+
 ## 🚀 Usage
 ### Python Notebook 
 1. Open `src/main.ipynb` in Jupyter Notebook or [Google Colab](https://colab.research.google.com/github/pabdzadeh/monash-admission-task/blob/main/src/main.ipynb#scrollTo=2fg_4ktaTmj_).
