@@ -48,18 +48,18 @@ Alternatively, you can run the notebook directly on **[Google Colab](https://col
 This project explores how **different textual descriptions (prompts)** for class names can influence CLIP’s performance in both zero-shot classification and linear probing.  
 Each CIFAR-10 class is associated with **six prompt variations**, ranging from short labels to descriptive natural language.  
 
-| Class       | Prompt Variations                                                                 |
-|-------------|-----------------------------------------------------------------------------------|
+| Class          | Prompt Variations                                                                                |
+|----------------|--------------------------------------------------------------------------------------------------|
 | **airplane**   | airplane, Airplane, a photo of an airplane, a flying airplane, a passenger airplane, an aircraft |
-| **automobile** | automobile, car, a photo of a car, a small car, a sports car, a vehicle        |
-| **bird**       | bird, a bird, a small bird, a colorful bird, a flying bird, wild bird          |
-| **cat**        | cat, a cat, domestic cat, a small cat, a cute cat, kitten                      |
-| **deer**       | deer, a deer, a wild deer, a forest deer, a brown deer, stag                   |
-| **dog**        | dog, a dog, puppy, a small dog, a cute dog, domestic dog                       |
-| **frog**       | frog, a frog, a green frog, a small frog, amphibian frog, pond frog            |
-| **horse**      | horse, a horse, a brown horse, a white horse, a running horse, stallion         |
-| **ship**       | ship, a ship, a boat, a large ship, a sailing ship, cargo ship                 |
-| **truck**      | truck, a truck, a large truck, a delivery truck, a heavy truck, lorry          |
+| **automobile** | automobile, car, a photo of a car, a small car, a sports car, a vehicle                          |
+| **bird**       | bird, a bird, a small bird, a colorful bird, a flying bird, wild bird                            |
+| **cat**        | cat, a cat, domestic cat, a small cat, a cute cat, kitten                                        |
+| **deer**       | deer, a deer, a wild deer, a forest deer, a brown deer, stag                                     |
+| **dog**        | dog, a dog, puppy, a small dog, a cute dog, domestic dog                                         |
+| **frog**       | frog, a frog, a green frog, a small frog, amphibian frog, pond frog                              |
+| **horse**      | horse, a horse, a brown horse, a white horse, a running horse, stallion                          |
+| **ship**       | ship, a ship, a boat, a large ship, a sailing ship, cargo ship                                   |
+| **truck**      | truck, a truck, a large truck, a delivery truck, a heavy truck, lorry                            |
 
 ---
 
@@ -115,19 +115,19 @@ You can also experiment with different prompt variations, prefixes, and postfixe
 
 The training and evaluation pipeline can be customized using the following arguments:
 
-| Argument                | Type   | Default | Description                                                                                                                                    |
-|--------------------------|--------|---------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| `--batch_size`           | int    | 16      | Batch size for training and evaluation.                                                                                                        |
-| `--linear_probe_type`    | str    | "exact" | Type of linear probe to use: `Simple` or `Exact`.                                                                                              |
-| `--output_dir`           | str    | "."     | Directory to save checkpoints and results.                                                                                                     |
-| `--class_name_type`      | int    | 0       | Index of class name variation (e.g., `0 = airplane`, `1 = Airplane`, `2 = a photo of an airplane`, etc.). Applies across all CIFAR-10 classes. |
-| `--class_name_prefix`    | str    | ""      | Prefix to be added to all class names. Useful for prompt engineering.                                                                          |
-| `--class_name_postfix`   | str    | ""      | Postfix to be added to all class names. Useful for prompt engineering.                                                                         |
-| `--resume_from_checkpoint` | str  | None    | Path to resume training from a saved checkpoint.                                                                                               |
-| `--pretrained_model`     | str    | None    | Name of pretrained CLIP variant (e.g., `"ViT-B-32"`).                                                                                          |
-| `--linear_probe`         | bool   | False   | If `True`, trains a linear probe on CLIP embeddings.                                                                                           |
-| `--zero_shot`            | bool   | True    | If `True`, evaluates using zero-shot classification.                                                                                           |
-| `--train_epochs`         | int    | 100     | Number of training epochs for the simple linear probe model.                                                                                   |
+| Argument                        | Type | Default | Description                                                                                                                                    |
+|---------------------------------|------|---------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `--batch_size`                  | int  | 16      | Batch size for training and evaluation.                                                                                                        |
+| `--linear_probe_type`           | str  | "exact" | Type of linear probe to use: `Simple` or `Exact`.                                                                                              |
+| `--output_dir`                  | str  | "."     | Directory to save checkpoints and results.                                                                                                     |
+| `--class_name_type`             | int  | 0       | Index of class name variation (e.g., `0 = airplane`, `1 = Airplane`, `2 = a photo of an airplane`, etc.). Applies across all CIFAR-10 classes. |
+| `--class_name_prefix`           | str  | ""      | Prefix to be added to all class names. Useful for prompt engineering.                                                                          |
+| `--class_name_postfix`          | str  | ""      | Postfix to be added to all class names. Useful for prompt engineering.                                                                         |
+| `--resume_from_checkpoint`      | str  | None    | Path to resume training from a saved checkpoint.                                                                                               |
+| `--pretrained_model`            | str  | None    | Name of pretrained CLIP variant (e.g., `"ViT-B-32"`).                                                                                          |
+| `--linear_probe`                | bool | False   | If `True`, trains a linear probe on CLIP embeddings.                                                                                           |
+| `--zero_shot`                   | bool | True    | If `True`, evaluates using zero-shot classification.                                                                                           |
+| `--train_epochs`                | int  | 100     | Number of training epochs for the simple linear probe model.                                                                                   |
 
 ---
 
