@@ -132,14 +132,13 @@ The training and evaluation pipeline can be customized using the following argum
 ---
 
 📌 **Usage Example**:
-
-```bash
-python src/main.py \
-  --batch_size 32 \
-  --linear_probe True \
-  --train_epochs 50 \
-  --class_name_type 2 \
-  --output_dir ./checkpoints
+    ```bash
+    python src/main.py \
+      --batch_size 32 \
+      --linear_probe True \
+      --train_epochs 50 \
+      --class_name_type 2 \
+      --output_dir ./checkpoints
 
 ## 📊 Results
 ### Pretrained on laion2b_s34b_b79k
@@ -151,10 +150,11 @@ python src/main.py \
 | Linear probe Simple Logistic Regression 10-epoch (ViT-B-32 features)                     | 96.9         |
 
 ### Pretrained on datacomp_xl_s13b_b90k
-| Experiment                                                                               | Accuracy (%) |
-|------------------------------------------------------------------------------------------|--------------|
-| Zero-shot (default prompts)                                                              | 95.2         |
-| Zero-shot (max of engineered prompts)                                                    | 95.3         |
+| Experiment                                                                              | Accuracy (%) |
+|-----------------------------------------------------------------------------------------|--------------|
+| Zero-shot (default prompts)                                                             | 95.2         |
+| Zero-shot (max of engineered prompts)                                                   | 95.3         |
+| Linear probe with CLIP's Regularized Logistic Regression and L-BFGS (ViT-B-32 features) | 97.8         |
 
 
 ---

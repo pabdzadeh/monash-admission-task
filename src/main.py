@@ -218,7 +218,7 @@ def prepare_dataset(args, preprocess):
 
 def main():
     """
-    Main function to spawn the train and test process.
+    Main function for the train and test process.
     """
     args = parse_args()
 
